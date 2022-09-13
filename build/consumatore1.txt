@@ -1,0 +1,39 @@
+:-dynamic id_ordine/1.
+:-dynamic condizione/1.
+:-dynamic fase/1.
+:-dynamic richiesta/1.
+
+/*
+condizioni: 
+1 -> fame
+2 -> sete
+3 -> malattia
+4 -> a posto
+*/
+
+id_ordine(0).
+condizione(4).
+fase(inizializzazione).
+
+controllo_condizioni:- condizione(4);condizione(3);condizione(2);condizione(1).
+controllo_condizioniI:> fase(inizializzazione), write('--------------------'), nl, random(1,5,R), retract(condizione(4)), assert(condizione(R)), retract(fase(inizializzazione)).
+controllo_condizioniI:> \+ fase(inizializzazione), (condizione(3) -> ordine(medicina); (condizione(2) -> ordine(acqua); (condizione(1) -> ordine(cibo); write(''), aggiorna))).
+
+ordine(Y):- id_ordine(X), X==0, write('Salve, ho un ordine da inviare.'), nl, messageA(venditore,send_message(spesa([Y,Me]),Me)), stampa_richiesta(Y).
+ordine(Y):- id_ordine(X), X>0, write('').
+
+stampa_richiesta(Y):- write('Ho ordinato: '), write(Y), write('.').
+
+aggiorna:- random(1,5,R), retract(condizione(4)), assert(condizione(R)).
+
+assegna_ordine_numeroE(Y):> retract(id_ordine(X)), assert(id_ordine(Y)), write('L ID del mio ordine e: '), write(Y), write('.').
+
+ritorna_piu_tardiE:> write('Ok').
+
+richiesta_idE :> id_ordine(X), X==0, messageA(venditore,send_message(risposta_id([X,Me]),Me)), write('Non ho effettuato ordini.'), nl, write('--------------------').
+richiesta_idE :> id_ordine(X), X>0, messageA(venditore,send_message(risposta_id([X,Me]),Me)).
+
+rimuovi_ordineE(X):> id_ordine(X), X==0, write('Non ho ordini, c e stato un errore.'), nl, write('--------------------'), nl.
+rimuovi_ordineE(X):> id_ordine(X), X>0, retract(id_ordine(X)), assert(id_ordine(0)), write('Grazie per il servizio, a presto.'), nl, write('--------------------'), retract(condizione(Z)), random(1,5,R), assert(condizione(R)), nl, R==4, write('Per adesso non ho bisogno di niente.'), nl, write('--------------------'), nl.
+
+ritenta_ordineE:> write('Ok, ritento piu tardi'), nl, write('--------------------'), nl.

@@ -1,0 +1,25 @@
+:-dynamic richiesta/2.
+:-dynamic contatore_richiesta/1.
+:-dynamic contatore_servito/1.
+:-dynamic stato/1.
+
+stato(dorme).
+contatore_richiesta(0).
+contatore_servito(0).
+
+sveglia:- stato(dorme).
+svegliaI:> contatore_richiesta(Q0), contatore_servito(Q1), Q0==Q1, write('').
+svegliaI:> contatore_richiesta(Q0), contatore_servito(Q1), Q0>Q1, servi_prodotto(Q1,Q2).
+
+richiesta_idE:> write('').
+
+richiesta_merceE(Z):> write('--------------------'), nl, write('Ho ricevuto la richiesta di rifornimenti per il bene: '), write(Z), write('.'), nl, registra_richiesta(Z,Q0,Q1).
+
+registra_richiesta(Z,Q0,Q1):-contatore_richiesta(Q0), Q1 is Q0+1, assert(richiesta(Z,Q1)), retract(contatore_richiesta(Q0)), assert(contatore_richiesta(Q1)).
+
+servi_prodotto(Q1,Q2):-Q2 is Q1+1, richiesta(X,Q2), messageA(venditore,send_message(arrivo_merci(X),Me)), write('Invio rifornimenti di: '), write(X), write(' al venditore.'), retract(richiesta(X,Q2)), retract(contatore_servito(Q1)), assert(contatore_servito(Q2)).
+servi_prodotto(Q1,Q2):-Q2 is Q1+1, \+ richiesta(X,Q2), write('Qualcosa e andato storto con la registrazione delle richieste.'), nl, retract(richiesta(X,Q2)), retract(contatore_servito(Q1)), assert(contatore_servito(Q2)).
+
+
+
+

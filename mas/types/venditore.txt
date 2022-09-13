@@ -1,0 +1,41 @@
+:-dynamic stato/1.
+:-dynamic ordine_numero/1.
+:-dynamic ordine/2.
+:-dynamic pronto/1.
+:-dynamic contatore_risposte/1.
+:-dynamic bene_da_servire/2.
+:-dynamic bene_in_magazzino/2.
+
+stato(dorme).
+ordine_numero(0).
+contatore_risposte(0).
+bene_in_magazzino(cibo, 2).
+bene_in_magazzino(acqua, 1).
+bene_in_magazzino(medicina, 3).
+
+sveglia:- stato(dorme).
+svegliaI:> write('--------------------'), nl, write('Eccomi! Inizio il turno.'), nl, inizio_routine, write('Controllo ordini...'), nl.
+
+spesaE(Z):> Z=[Bene,Mittente], write('Ho ricevuto delle richieste mentre dormivo.'), aggiorna_numero_ordine(X,Y), ordine_numero(W), assert(bene_da_servire(W,Bene)), messageA(Mittente,send_message(assegna_ordine_numero(W),Me)).
+
+aggiorna_numero_ordine(X,Y):- ordine_numero(X), Y is X+1, retract(ordine_numero(X)), assert(ordine_numero(Y)).
+
+inizio_routine:- messageA(all,send_message(richiesta_id,Me)).
+
+risposta_idE(X):> \+ordine(A,Mittente), X=[Y,Z], aggiorna_contatore(Q0,Q1), (Y>0 -> assert(ordine(Y,Z)); write('')), (Q1==2 -> assert(pronto(servizio)); write('')).
+risposta_idE(X):> ordine(A,Mittente), X=[Y,Z], aggiorna_contatore(Q0,Q1), (Y>A -> write(''); (Y>0 -> retract(ordine(A,Mittente)), assert(ordine(Y,Z)); write(''))), (Q1==2 -> assert(pronto(servizio)); write('')).
+
+aggiorna_contatore(Q0,Q1):> contatore_risposte(Q0), Q1 is Q0+1, retract(contatore_risposte(Q0)), assert(contatore_risposte(Q1)).
+
+servizio_routine:- pronto(servizio).
+servizio_routineI:> \+ordine(X,Y), write('Non ho ricevuto ordini, chiudo il turno.'), nl, write('--------------------'), nl, retract(contatore_risposte(2)), assert(contatore_risposte(0)), retract(pronto(servizio)).
+servizio_routineI:> ordine(X,Y), bene_da_servire(X,Z), bene_in_magazzino(Z,W), (W>0 -> write('Servo l ordine di: '),  write(Y), write(' con id: '), write(X), write('.'), nl, write('Fatto!'), nl, write('Chiudo il turno.'), nl, write('--------------------'), aggiorna_bene_in_magazzino(Z,Q0,Q1); write('Bene momentaneamente non disponibile, provi a ripassare presto. Chiudo il turno.'), nl, write('--------------------'), nl), retract(contatore_risposte(2)), assert(contatore_risposte(0)), retract(ordine(X,Y)), rispondi_consumatore(W,X,Y), retract(pronto(servizio)).
+
+rispondi_consumatore(W,X,Y):- W>0, messageA(Y,send_message(rimuovi_ordine(X),Me)).
+rispondi_consumatore(W,X,Y):- W==0, messageA(Y,send_message(ritenta_ordine,Me)).
+
+aggiorna_bene_in_magazzino(Z,Q0,Q1):- bene_in_magazzino(Z,Q0), Q1 is Q0-1, (Q1==0 -> nl, write('In magazzino non ci sono piu scorte di '), write(Z), write(', provvedo a richiedere rifornimenti al produttore.'), nl, write('--------------------'), acquista_merci_routine(Z); retract(bene_in_magazzino(Z,Q0)), assert(bene_in_magazzino(Z,Q1))).
+
+acquista_merci_routine(Z):- messageA(produttore,send_message(richiesta_merce(Z),Me)).
+
+arrivo_merciE(X):> write('***********************************'), nl, write('Sono arrivati rifornimenti di '), write(X), write('.'), nl, write('***********************************'), nl, retract(bene_in_magazzino(X,Y)), assert(bene_in_magazzino(X,3)).

@@ -1,0 +1,8 @@
+send_message(send_message(assegna_ordine_numero(1),_400801))
+send_message(send_message(assegna_ordine_numero(2),_443869))
+send_message(send_message(rimuovi_ordine(1),_444755))
+send_message(send_message(assegna_ordine_numero(3),_400801))
+send_message(send_message(rimuovi_ordine(2),_444755))
+send_message(send_message(richiesta_merce(acqua),_431217))
+send_message(send_message(rimuovi_ordine(3),_431189))
+send_message(send_message(assegna_ordine_numero(4),_443869))

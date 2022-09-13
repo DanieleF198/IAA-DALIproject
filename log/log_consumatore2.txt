@@ -1,0 +1,6 @@
+send_message(send_message(risposta_id([0,_360197]),_360197))
+send_message(send_message(spesa([medicina,_386519]),_386519))
+send_message(send_message(risposta_id([2,_360193]),_360193))
+send_message(send_message(risposta_id([2,_360193]),_360193))
+send_message(send_message(risposta_id([0,_400187]),_400187))
+send_message(send_message(spesa([medicina,_388777]),_388777))
